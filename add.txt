@@ -3,3 +3,4 @@ and this is the first line.
 eidt line!
 add line!
 diff
+window ok?
