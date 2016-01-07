@@ -1,0 +1,7 @@
+diff a/add.txt b/add.txt	(rejected hunks)
+@@ -1,2 +1,3 @@
+ this is the first text!
+\ No newline at end of file
++and this is the first line.
+ eidt line!
+\ No newline at end of file
