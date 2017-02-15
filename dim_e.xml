@@ -13,4 +13,7 @@
     <column comment="" default="" key="false" label="newColumn3"
         length="-1" nullable="true" originalDbColumnName="newColumn3"
         pattern="" precision="0" talendType="id_Double" type="DOUBLE"/>
+<column comment="" default="" key="false" label="newColumn5”
+        length="-1" nullable="true" originalDbColumnName="newColumn5”
+        pattern="" precision="0" talendType="id_Double" type="DOUBLE"/>
 </schema>
