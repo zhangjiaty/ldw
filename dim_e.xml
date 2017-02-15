@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema dbmsId="mysql_id">
+    <column comment="" default="" key="false" label="newColumn"
+        length="-1" nullable="true" originalDbColumnName="newColumn"
+        pattern="" precision="0" talendType="id_Integer" type="INT"/>
+    <column comment="" default="" key="false" label="newColumn1"
+        length="255" nullable="true" originalDbColumnName="newColumn1"
+        pattern="" precision="0" talendType="id_String" type="VARCHAR"/>
+    <column comment="" default="" key="false" label="newColumn2"
+        length="-1" nullable="true" originalDbColumnName="newColumn2"
+        pattern="&quot;dd-MM-yyyy&quot;" precision="0"
+        talendType="id_Date" type="DATETIME"/>
+    <column comment="" default="" key="false" label="newColumn3"
+        length="-1" nullable="true" originalDbColumnName="newColumn3"
+        pattern="" precision="0" talendType="id_Double" type="DOUBLE"/>
+</schema>
