@@ -1,0 +1,370 @@
+docker run -d -name  zk1 \ --net foo \ -e SERVER_ID=1 \ -e ADDITIONAL_ZOOKEEPER_1=server.1=0.0.0.0:2888:3888 \ -e ADDITIONAL_ZOOKEEPER_2=server.2=zk2:2888:3888 \ -e ADDITIONAL_ZOOKEEPER_3=server.3=zk3:2888:3888 \ registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+
+ZK_IP=172.16.0.11:2181,172.16.0.12:2181,172.16.0.13:2181
+
+
+HOST_IP=172.16.0.30
+
+docker run -it -d \
+--net=mynet \
+--name=master \
+--expose=5050 \
+--expose=32113 \
+--ip=172.16.0.30 \
+-p 5050:5050 \
+-e "MESOS_HOSTNAME=${HOST_IP}" \
+-e "MESOS_IP=${HOST_IP}" \
+-e "MESOS_ZK=zk://${ZK_IP}/mesos" \
+-e "MESOS_PORT=5050" \
+-e "MESOS_LOG_DIR=/var/log/mesos" \
+-e "MESOS_QUORUM=1" \
+-e "MESOS_REGISTRY=in_memory" \
+-e "MESOS_WORK_DIR=/var/lib/mesos" \
+garland/mesosphere-docker-mesos-master
+
+
+
+docker run -it -d \
+--net=host \
+--name=master2 \
+--expose=5050 \
+-p 5050:5050 \
+-e "MESOS_HOSTNAME=${HOST_IP}" \
+-e "MESOS_IP=${HOST_IP}" \
+-e "MESOS_ZK=zk://${ZK_IP}/mesos" \
+-e "MESOS_PORT=5050" \
+-e "MESOS_LOG_DIR=/var/log/mesos" \
+-e "MESOS_QUORUM=1" \
+-e "MESOS_REGISTRY=in_memory" \
+-e "MESOS_WORK_DIR=/var/lib/mesos" \
+garland/mesosphere-docker-mesos-master
+
+
+
+docker run --net="host" \
+  -p 5050:5050 \
+  -e "MESOS_HOSTNAME=${HOST_IP}" \
+  -e "MESOS_IP=${HOST_IP}" \
+  -e "MESOS_ZK=zk://${HOST_IP}:2085/mesos" \
+  -e "MESOS_PORT=5050" \
+  -e "MESOS_LOG_DIR=/var/log/mesos" \
+  -e "MESOS_QUORUM=1" \
+  -e "MESOS_REGISTRY=in_memory" \
+  -e "MESOS_WORK_DIR=/var/lib/mesos" \
+  -d \
+  garland/mesosphere-docker-mesos-master
+
+
+docker run --net mynet \
+--ip=172.16.0.80 \
+--name=mara \
+-d \
+-p 8080:8080 \
+garland/mesosphere-docker-marathon --master zk://${ZK_IP}/mesos --zk zk://${ZK_IP}/marathon
+
+
+docker run -d \
+--net mynet \
+--name ms2 \
+-p 5051:5051 \
+--entrypoint="mesos-slave" \
+-e "MESOS_MASTER=zk://${ZK_IP}/mesos" \
+-e "MESOS_LOG_DIR=/var/log/mesos" \
+-e "MESOS_LOGGING_LEVEL=INFO" \
+garland/mesosphere-docker-mesos-master:latest
+
+
+docker run -d \
+--name zk11 \
+--net mynet \
+--ip 172.16.0.11 \
+-e SERVER_ID=1 \
+-e ADDITIONAL_ZOOKEEPER_1=server.1=0.0.0.0:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_2=server.2=zk12:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_3=server.3=zk13:2888:3888 \
+registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+docker run -d \
+--name zk12 \
+--net mynet \
+--ip 172.16.0.12 \
+-e SERVER_ID=2 \
+-e ADDITIONAL_ZOOKEEPER_1=server.1=zk11:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_2=server.2=0.0.0.0:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_3=server.3=zk13:2888:3888 \
+registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+
+docker run -d \
+--name zk13 \
+--net mynet \
+--ip 172.16.0.13 \
+-e SERVER_ID=3 \
+-e ADDITIONAL_ZOOKEEPER_1=server.1=zk11:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_2=server.2=zk12:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_3=server.3=0.0.0.0:2888:3888 \
+registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+docker run -d \
+--name zk14 \
+--net mynet \
+--ip 172.16.0.14 \
+-e SERVER_ID=4 \
+-e ADDITIONAL_ZOOKEEPER_1=server.1=zk11:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_2=server.2=zk12:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_3=server.3=zk13:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_4=server.4=0.0.0.0:2888:3888 \
+-e ADDITIONAL_ZOOKEEPER_4=server.5=zk15:2888:3888 \
+registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+
+docker run -d \
+--name zk4 \
+-p 2184:2181 \
+-e SERVER_ID=4 \
+-e ADDITIONAL_ZOOKEEPER_4=server.4=0.0.0.0:2888:3888 \
+registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+docker run -d \
+--name zk5 \
+--net mynet \
+--ip=172.16.0.5 \
+-p 2185:2181 \
+-e SERVER_ID=5 \
+-e ADDITIONAL_ZOOKEEPER_5=server.5=0.0.0.0:2888:3888 \
+registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+
+docker run --net="host" \
+-p 5050:5050 \
+-e "MESOS_HOSTNAME=${HOST_IP}" \
+-e "MESOS_IP=${HOST_IP}" \
+-e "MESOS_ZK=zk://172.18.0.2:2181,172.18.0.3:2181,172.18.0.4:2181/mesos" \
+-e "MESOS_PORT=5050" \
+-e "MESOS_LOG_DIR=/var/log/mesos" \
+-e "MESOS_QUORUM=1" \
+-e "MESOS_REGISTRY=in_memory" \
+-e "MESOS_WORK_DIR=/var/lib/mesos" \
+-d \
+garland/mesosphere-docker-mesos-master
+
+
+echo “hello”>>/tmp/output.txt
+
+
+
+
+
+
+
+
+
+
+
+
+ZK=172.16.0.5:2181
+MAS=172.16.0.30
+
+docker run -d  --net=macnet \
+  --name=mas \
+  --ip=$MAS \
+  -p 5050:5050 \
+  -e MESOS_HOSTNAME=$MAS \
+  -e MESOS_IP=$MAS \
+  -e MESOS_PORT=5050 \
+  -e MESOS_ZK=zk://$ZK/mesos \
+  -e MESOS_QUORUM=1 \
+  -e MESOS_REGISTRY=in_memory \
+  -e MESOS_LOG_DIR=/var/log/mesos \
+  -e MESOS_WORK_DIR=/var/tmp/mesos \
+  mesosphere/mesos-master:1.1.0-2.0.107.ubuntu1404.02
+
+
+
+docker run -d --net=macnet --privileged \
+  --name=msl216 \
+  --ip=192.168.11.216 \
+  -e MESOS_HOSTNAME=192.168.11.216 \
+  -e MESOS_PORT=5051 \
+  -e MESOS_MASTER=zk://$ZK/mesos \
+  -e MESOS_ZK=zk://$ZK/mesos \
+  -e MESOS_SWITCH_USER=0 \
+  -e MESOS_CONTAINERIZERS=mesos \
+  -e MESOS_LOG_DIR=/var/log/mesos \
+  -e MESOS_WORK_DIR=/var/tmp/mesos \
+  mesosphere/mesos-slave:1.1.01.1.0-2.0.107.ubuntu1404
+
+
+docker run -d --net=macnet --privileged \
+  --name=msl215 \
+  --ip=192.168.11.215 \
+  --expose=31608 \
+  --expose=31378 \
+  --expose=31836 \
+  -e MESOS_HOSTNAME=192.168.11.215 \
+  -e MESOS_PORT=5051 \
+  -e MESOS_MASTER=zk://$ZK/mesos \
+  -e MESOS_ZK=zk://$ZK/mesos \
+  -e MESOS_SWITCH_USER=0 \
+  -e MESOS_CONTAINERIZERS=mesos \
+  -e MESOS_LOG_DIR=/var/log/mesos \
+  -e MESOS_WORK_DIR=/var/tmp/mesos \
+  -v "$(pwd)/log/mesos215:/var/log/mesos" \
+  -v "$(pwd)/tmp/mesos215:/var/tmp/mesos" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /usr/bin/docker:/usr/local/bin/docker \
+  -v /lib/x86_64-linux-gnu/libsystemd.so.0:/lib/x86_64-linux-gnu/libsystemd.so.0 \
+  -v /lib/x86_64-linux-gnu/libselinux.so.1:/lib/x86_64-linux-gnu/libselinux.so.1 \
+  -v /lib/x86_64-linux-gnu/libgcrypt.so.20:/lib/x86_64-linux-gnu/libgcrypt.so.20 \
+  -v /lib/x86_64-linux-gnu/libgpg-error.so.0:/lib/x86_64-linux-gnu/libgpg-error.so.0 \
+  -v /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7 \
+  -v /lib/x86_64-linux-gnu/libdevmapper.so.1.02.1:/lib/x86_64-linux-gnu/libdevmapper.so.1.02.1:ro \
+  -v /lib/x86_64-linux-gnu/libapparmor.so.1:/usr/lib/x86_64-linux-gnu/libapparmor.so.1:ro \
+  -v /lib/x86_64-linux-gnu/libseccomp.so.2:/usr/lib/x86_64-linux-gnu/libseccomp.so.2:ro \
+  mesosphere/mesos-slave:1.1.01.1.0-2.0.107.ubuntu1404
+
+ZK52=192.168.11.52:2181
+
+docker run -d --net=macnet --privileged \
+  --name=msl216 \
+  --ip=192.168.11.216 \
+  -e MESOS_PORT=5051 \
+  -e MESOS_MASTER=zk://$ZK52/mesos \
+  -e MESOS_ZK=zk://$ZK52/mesos \
+  -e MESOS_SWITCH_USER=0 \
+  -e MESOS_CONTAINERIZERS=mesos \
+  -e MESOS_LOG_DIR=/var/log/mesos \
+  -e MESOS_WORK_DIR=/var/tmp/mesos \
+  mesosphere/mesos-slave:1.1.01.1.0-2.0.107.ubuntu1404
+
+
+
+docker run -d --net=macnet --privileged \
+  --name=msl216 \
+  --ip=192.168.11.216 \
+  -e MESOS_HOSTNAME=192.168.11.216 \
+  -e MESOS_PORT=5051 \
+  -e MESOS_MASTER=zk://$ZK/mesos \
+  -e MESOS_ZK=zk://$ZK/mesos \
+  -e MESOS_SWITCH_USER=0 \
+  -e MESOS_CONTAINERIZERS=docker,mesos \
+  -e MESOS_LOG_DIR=/var/log/mesos \
+  -e MESOS_WORK_DIR=/var/tmp/mesos \
+  -v "$(pwd)/log/mesos:/var/log/mesos" \
+  -v "$(pwd)/tmp/mesos:/var/tmp/mesos" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /cgroup:/cgroup \
+  -v /sys:/sys \
+  -v /usr/bin/docker:/usr/local/bin/docker \
+  -v /lib/x86_64-linux-gnu/libsystemd.so.0:/lib/x86_64-linux-gnu/libsystemd.so.0 \
+  -v /lib/x86_64-linux-gnu/libselinux.so.1:/lib/x86_64-linux-gnu/libselinux.so.1 \
+  -v /lib/x86_64-linux-gnu/libgcrypt.so.20:/lib/x86_64-linux-gnu/libgcrypt.so.20 \
+  -v /lib/x86_64-linux-gnu/libgpg-error.so.0:/lib/x86_64-linux-gnu/libgpg-error.so.0 \
+  -v /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7 \
+  -v /lib/x86_64-linux-gnu/libdevmapper.so.1.02.1:/lib/x86_64-linux-gnu/libdevmapper.so.1.02.1:ro \
+  -v /lib/x86_64-linux-gnu/libapparmor.so.1:/usr/lib/x86_64-linux-gnu/libapparmor.so.1:ro \
+  -v /lib/x86_64-linux-gnu/libseccomp.so.2:/usr/lib/x86_64-linux-gnu/libseccomp.so.2:ro \
+  mesosphere/mesos-slave:1.1.01.1.0-2.0.107.ubuntu1404
+
+
+docker run -d --net=mynet --privileged \
+  --name=nmsl3 \
+  -e MESOS_HOSTNAME=192.168.99.100 \
+  -e MESOS_IP=192.168.99.100 \
+  -e MESOS_PORT=5052 \
+  -e MESOS_MASTER=zk://172.16.0.2:2181/mesos \
+  -e MESOS_ZK=zk://172.16.0.2:2181/mesos \
+  -e MESOS_SWITCH_USER=0 \
+  -e MESOS_CONTAINERIZERS=docker,mesos \
+  -e MESOS_LOG_DIR=/var/log/mesos \
+  -e MESOS_WORK_DIR=/var/tmp/mesos \
+  -v "$(pwd)/log/mesos:/var/log/mesos" \
+  -v "$(pwd)/tmp/mesos:/var/tmp/mesos" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /cgroup:/cgroup \
+  -v /sys:/sys \
+  -v /usr/local/bin/docker:/usr/local/bin/docker \
+  mesosphere/mesos-slave:1.1.01.1.0-2.0.107.ubuntu1404
+
+
+docker run \
+--name=mara \
+--net=macnet \
+--ip=192.168.11.221 \
+-d \
+-p 8080:8080 \
+mesosphere/marathon:v1.4.0-RC4 --master zk://$ZK/mesos --zk zk://$ZK/marathon
+
+
+docker run \
+--name=mara1 \
+--net=host \
+-d \
+mesosphere/marathon:v1.4.0-RC4 --master zk://192.168.11.183:2181/mesos --zk zk://192.168.11.183:2181/marathon
+
+
+docker run -d \
+--net=host \
+--name=zk3 \
+-e SERVER_ID=1 \
+-e ADDITIONAL_ZOOKEEPER_1=server.1=zookeeper1:2888:3888 \
+registry.aliyuncs.com/acs-sample/zookeeper:3.4.8
+
+
+mesos-execute --master=172.16.0.30:5050 --name="cluster-test" --command="sleep 60"
+
+mesos-execute --master=192.168.11.121:5050 --name="cluster-test" --command=“/bin/echo hello world>>/tmp/out.txt”
+
+
+
+
+mesos-slave --hostname=192.168.11.121 --master=zk://localhost:2181/mesos --work_dir=/var/lib/mesos &
+
+
+
+docker network create -d macvlan —subnet=192.168.11.0/24 \
+-—gateway=192.168.11.1 \
+-o parent=eth1 \
+-o macvlan_mode=bridge macnet
+
+
+./bin/start --master zk://192.168.11.183:2181/mesos --zk zk://192.168.11.183:2181/marathon
+
+
+
+
+
+val jdbcDF = sqlContext.read.format("jdbc").options(Map("url" -> "jdbc:mysql://192.168.11.52:3306/wolong", "driver" -> "com.mysql.jdbc.Driver", "dbtable" -> "User", "user" -> "root", "password" -> "passw0rd")).load()
+
+
+http://plugins.jetbrains.com/files/1347/21544/scala-intellij-bin-1.5.4.zip
+
+
+
+
+
+sum2.aggregate((0.0,0.0))(
+(acc,value) => (acc._1 + value, acc._2 + 1),
+(acc1,acc2) => (acc1._1 + acc2._1, acc1._2 + acc2._2)
+)
+
+
+
+val jdbcDF = spark.read.format("jdbc").option("url", "jdbc:mysql://192.168.11.52:3306/wolong?useUnicode=true&amp;characterEncoding=utf-8").option("dbtable", "test.user").option("user", "root").option("password", "Passw0rd").load()
+
+
+
+
+
+
+
+
+http://app2.sfda.gov.cn/datasearchp/all.do?page=1&name=%E8%91%A1%E8%90%84%E7%B3%96%E6%B3%A8%E5%B0%84%E6%B6%B2&tableName=TABLE25&formRender=count&searchcx=&paramter0=&paramter1=&paramter2=
+
+http://app2.sfda.gov.cn/datasearchp/all.do?page=2&name=%E8%91%A1%E8%90%84%E7%B3%96%E6%B3%A8%E5%B0%84%E6%B6%B2&tableName=TABLE25&formRender=count&searchcx=&paramter0=&paramter1=&paramter2=
+
+
+
+
+
